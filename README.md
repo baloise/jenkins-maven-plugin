@@ -1,6 +1,6 @@
 # jenkins-maven-plugin
 
-A maven plugin to help develop and deploy JENKINS based applications.
+A maven plugin to help develop and deploy JENKINS workflow libraries and pipelines.
 
 The design goals are
 
