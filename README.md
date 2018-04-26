@@ -12,15 +12,16 @@ The design goals are
 Prerequisite
 - Maven is working. That's all. No pom.xml required.
 - add jcenter repo to your maven settings
-
-```<pluginRepository>
+```
+<pluginRepository>
                     <snapshots>
                         <enabled>false</enabled>
                     </snapshots>
                     <id>bintray</id>
                     <name>bintray</name>
                     <url>http://jcenter.bintray.com</url>
-</pluginRepository>```
+</pluginRepository>
+```
 
 
 lets go some where safe ...
