@@ -11,6 +11,17 @@ The design goals are
 
 Prerequisite
 - Maven is working. That's all. No pom.xml required.
+- add jcenter repo to your maven settings
+
+```<pluginRepository>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                    <id>bintray</id>
+                    <name>bintray</name>
+                    <url>http://jcenter.bintray.com</url>
+</pluginRepository>```
+
 
 lets go some where safe ...
 
@@ -63,3 +74,5 @@ Of course you have all the options as where to set the properties
 
 [(tell me more)](http://docs.codehaus.org/display/MAVENUSER/MavenPropertiesGuide)
 
+
+[![Build Status](https://travis-ci.org/baloise/jenkins-maven-plugin.svg)](https://travis-ci.org/baloise/jenkins-maven-plugin)
