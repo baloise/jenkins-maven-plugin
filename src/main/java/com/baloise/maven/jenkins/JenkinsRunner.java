@@ -6,9 +6,13 @@ import static java.util.regex.Pattern.quote;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
+import java.util.Scanner;
+
+import org.apache.maven.plugin.logging.Log;
 
 public class JenkinsRunner {
 
@@ -20,7 +24,7 @@ public class JenkinsRunner {
 
 	private Process proc;
 
-	public void runJenkins(File jenkinsHome, String context, int port, String jenkinsWar, File jenkinsHomeTemplate) throws Exception {
+	public void runJenkins(File jenkinsHome, String context, int port, String jenkinsWar, File jenkinsHomeTemplate, Log log) throws Exception {
 		copyTemplate(jenkinsHomeTemplate, jenkinsHome);
 		if(!context.isEmpty() &&  !context.startsWith("/")) context = "/"+context;
 		addShutdownHook();
@@ -37,8 +41,24 @@ public class JenkinsRunner {
 				"--prefix="+context
 				);
 		pb.environment().put("JENKINS_HOME", jenkinsHome.toString());
-		proc = pb.inheritIO().start();
+		proc = pb.start();
+		inheritIO(proc.getInputStream(), log, false);
+		inheritIO(proc.getErrorStream(), log, true);
 		proc.waitFor();
+	}
+	
+	private static void inheritIO(final InputStream src, final Log  dest, final boolean err) {
+	    new Thread(new Runnable() {
+	        public void run() {
+	            Scanner sc = new Scanner(src);
+	            while (sc.hasNextLine()) {
+	            	if(err) 
+	            		dest.error(sc.nextLine());
+	            	else
+	            		dest.info(sc.nextLine());
+	            }
+	        }
+	    }) {{setDaemon(true);}}.start();
 	}
 
 	private void copyTemplate(File jenkinsHomeTemplate, File jenkinsHome) throws IOException {
