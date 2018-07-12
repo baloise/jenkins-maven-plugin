@@ -14,15 +14,14 @@ Prerequisite
 - add jcenter repo to your maven settings
 ```
 <pluginRepository>
-                    <snapshots>
-                        <enabled>false</enabled>
-                    </snapshots>
-                    <id>bintray</id>
-                    <name>bintray</name>
-                    <url>http://jcenter.bintray.com</url>
+    <snapshots>
+        <enabled>false</enabled>
+    </snapshots>
+    <id>bintray</id>
+    <name>bintray</name>
+    <url>http://jcenter.bintray.com</url>
 </pluginRepository>
 ```
-
 
 lets go some where safe ...
 
@@ -46,7 +45,7 @@ Add the following to your *~/.m2/settings.xml*
 
 ```
 <pluginGroups>
-	<pluginGroup>com.baloise.maven</pluginGroup>
+    <pluginGroup>com.baloise.maven</pluginGroup>
 </pluginGroups>
 ```
 
