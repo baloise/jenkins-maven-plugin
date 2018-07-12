@@ -1,6 +1,7 @@
 package com.baloise.maven.jenkins;
 
 import static java.io.File.separator;
+import static java.util.Arrays.asList;
 import static java.util.regex.Pattern.quote;
 
 import java.io.BufferedReader;
@@ -18,8 +19,13 @@ public class JenkinsRunner {
 
 	public static String jre() {
 		RuntimeMXBean mxbean = ManagementFactory.getPlatformMXBean(RuntimeMXBean.class);
-		String java = mxbean.getBootClassPath().split(quote(separator) + "lib", 2)[0] + separator + "bin" + separator + "javaw";
-		return new File(java).exists() ? java : java + ".exe";
+		String jdk = mxbean.getBootClassPath().split(quote(separator)+"lib"+quote(separator)+"\\w+\\.jar",2)[0];
+		File bin = new File(jdk,  "bin");
+		for(String fileName : asList("javaw", "java", "javaw.exe", "java.exe")) {
+			File ret = new File(bin, fileName);
+			if(ret.exists()) return ret.getAbsolutePath();
+		}
+		throw new IllegalStateException("java excutable not found in "+bin);
 	}
 
 	private Process proc;
