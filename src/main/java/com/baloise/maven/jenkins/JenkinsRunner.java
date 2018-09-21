@@ -11,6 +11,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 import org.apache.maven.plugin.logging.Log;
@@ -31,21 +33,30 @@ public class JenkinsRunner {
 	private Process proc;
 
 	public void runJenkins(File jenkinsHome, String context, int port, String jenkinsWar, File jenkinsHomeTemplate, Log log) throws Exception {
+		runJenkins(jenkinsHome, context, port, jenkinsWar, jenkinsHomeTemplate, log, -1);
+	}
+	
+	public void runJenkins(File jenkinsHome, String context, int port, String jenkinsWar, File jenkinsHomeTemplate, Log log, int debugPort) throws Exception {
 		copyTemplate(jenkinsHomeTemplate, jenkinsHome);
 		if(!context.isEmpty() &&  !context.startsWith("/")) context = "/"+context;
 		addShutdownHook();
 		new Thread() {{setDaemon(true);}
 		public void run() {waitForExit();}
 		}.start();
+		
 		System.out.println(String.format("Starting %s with home at %s as http://localhost:%s%s", jenkinsWar, jenkinsHome, port, context));
-		ProcessBuilder pb = new ProcessBuilder(
-				jre(), 
-				"-Djenkins.install.runSetupWizard=false", 
-				"-jar", 
-				jenkinsWar,
-				"--httpPort="+port,
-				"--prefix="+context
-				);
+		List<String> command = new ArrayList<String>();
+		command.add(jre());
+		command.add("-Djenkins.install.runSetupWizard=false"); 
+		if(debugPort > 0 ) {
+			command.add("-Xdebug"); 
+			command.add("-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5555"); 
+		}
+		command.add("-jar"); 
+		command.add(jenkinsWar);
+		command.add("--httpPort="+port);
+		command.add("--prefix="+context);
+		ProcessBuilder pb = new ProcessBuilder(command);
 		pb.environment().put("JENKINS_HOME", jenkinsHome.toString());
 		proc = pb.start();
 		inheritIO(proc.getInputStream(), log, false);

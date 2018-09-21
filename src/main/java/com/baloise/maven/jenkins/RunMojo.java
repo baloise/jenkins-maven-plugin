@@ -30,6 +30,9 @@ public class RunMojo extends AbstractMojo {
 	static final String JENKINS_GROUP_ID = "org.jenkins-ci.main";
 	static final String JENKINS_ARTIFACT_ID = "jenkins-war";
 
+	@Parameter(property = "jenkins.debug.port", required = false)
+	int debugPort;
+	
 	@Parameter(defaultValue = "8080", property = "jenkins.port", required = true)
 	int port;
 
@@ -77,7 +80,7 @@ public class RunMojo extends AbstractMojo {
 		getLog().info("jenkins.war: " + war);
 		getLog().info(format("Starting JENKINS server at http://%s:%s%s", getHostName(), port, context));
 		try {
-			new JenkinsRunner().runJenkins(home, context, port, war, jenkinsHomeTemplate, getLog());
+			new JenkinsRunner().runJenkins(home, context, port, war, jenkinsHomeTemplate, getLog(), debugPort);
 		} catch (Exception e) {
 			getLog().error(e);
 		}
