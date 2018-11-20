@@ -71,6 +71,10 @@ Of course you have all the options as where to set the properties
   
   @Parameter(property = "jenkins.war", required=false)
   String war = null;
+  
+  @Parameter(property = "jenkins.debug.port", required=false)
+  int debugPort;
+  
 
 [(tell me more)](http://docs.codehaus.org/display/MAVENUSER/MavenPropertiesGuide)
 
