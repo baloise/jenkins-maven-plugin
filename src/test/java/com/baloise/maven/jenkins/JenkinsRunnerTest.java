@@ -20,7 +20,7 @@ public class JenkinsRunnerTest {
 	@Test
 	@Ignore
 	public void runJenkins() throws Exception {
-		String war = "target/jenkins-war-2.86.war";
+		String war = "target/jenkins.war";
 		new JenkinsRunner().runJenkins(new File("target/JENKINS_HOME"), "/", 8081, war, null, new SystemStreamLog(), 5555);
 	}
 

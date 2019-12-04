@@ -48,7 +48,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<jenkins.version>2.86</jenkins.version>
+		<jenkins.version>2.190.3</jenkins.version>
 		<aether.version>1.0.1.v20141111</aether.version>
 		<maven.version>3.2.3</maven.version>
 	</properties>
