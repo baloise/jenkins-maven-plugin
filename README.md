@@ -55,9 +55,10 @@ now you can use
 
 [(tell me more)](http://maven.apache.org/guides/introduction/introduction-to-plugin-prefix-mapping.html#Configuring_Maven_to_Search_for_Plugins)
 
-## Configuration options (TBD)
+## Configuration options
 
 Of course you have all the options as where to set the properties
+[(tell me more)](http://docs.codehaus.org/display/MAVENUSER/MavenPropertiesGuide)
 
 
   @Parameter(defaultValue = "${project.build.directory}/JENKINS-HOME", property = "jenkins.home")
@@ -75,8 +76,13 @@ Of course you have all the options as where to set the properties
   @Parameter(property = "jenkins.debug.port", required=false)
   int debugPort;
   
+  @Parameter(defaultValue = "2.190.3", property = "jenkins.version", required = false)
+  String version;
 
-[(tell me more)](http://docs.codehaus.org/display/MAVENUSER/MavenPropertiesGuide)
+  @Parameter(property = "jenkins.home.template", required = false)
+  File jenkinsHomeTemplate 
+	
+This documentation might be out of sync. [The truth is in the code](https://github.com/baloise/jenkins-maven-plugin/blob/master/src/main/java/com/baloise/maven/jenkins/RunMojo.java).
 
 
 [![Build Status](https://travis-ci.org/baloise/jenkins-maven-plugin.svg)](https://travis-ci.org/baloise/jenkins-maven-plugin)
