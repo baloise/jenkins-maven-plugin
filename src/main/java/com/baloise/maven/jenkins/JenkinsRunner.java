@@ -1,6 +1,5 @@
 package com.baloise.maven.jenkins;
 
-import static java.io.File.separator;
 import static java.util.Arrays.asList;
 import static java.util.regex.Pattern.quote;
 
@@ -19,15 +18,21 @@ import org.apache.maven.plugin.logging.Log;
 
 public class JenkinsRunner {
 
+	private static String lazyJre;
 	public static String jre() {
+		if(lazyJre != null) return lazyJre;
 		RuntimeMXBean mxbean = ManagementFactory.getPlatformMXBean(RuntimeMXBean.class);
-		String jdk = mxbean.getBootClassPath().split(quote(separator)+"lib"+quote(separator)+"\\w+\\.jar",2)[0];
-		File bin = new File(jdk,  "bin");
-		for(String fileName : asList("javaw", "java", "javaw.exe", "java.exe")) {
-			File ret = new File(bin, fileName);
-			if(ret.exists()) return ret.getAbsolutePath();
+		String libraryPath = mxbean.getLibraryPath();
+		for(String bin : libraryPath.split(quote(File.pathSeparator))) {
+			for(String fileName : asList("javaw", "java", "javaw.exe", "java.exe")) {
+				File ret = new File(bin, fileName);
+				if(ret.exists()) {
+					lazyJre =  ret.getAbsolutePath();
+					return lazyJre;
+				}
+			}
 		}
-		throw new IllegalStateException("java excutable not found in "+bin);
+		throw new IllegalStateException("java excutable not found");
 	}
 
 	private Process proc;
@@ -54,6 +59,7 @@ public class JenkinsRunner {
 		}
 		command.add("-jar"); 
 		command.add(jenkinsWar);
+		command.add("--enable-future-java");
 		command.add("--httpPort="+port);
 		command.add("--prefix="+context);
 		ProcessBuilder pb = new ProcessBuilder(command);
