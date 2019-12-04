@@ -2,6 +2,7 @@ package com.baloise.maven.jenkins;
 
 import static java.util.Arrays.asList;
 import static java.util.regex.Pattern.quote;
+import static java.io.File.separator;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -22,9 +23,23 @@ public class JenkinsRunner {
 	public static String jre() {
 		if(lazyJre != null) return lazyJre;
 		RuntimeMXBean mxbean = ManagementFactory.getPlatformMXBean(RuntimeMXBean.class);
+		List<String> names = asList("javaw", "java", "javaw.exe", "java.exe");
+		
+		if(mxbean.isBootClassPathSupported()) {
+			String jdk = mxbean.getBootClassPath().split(quote(separator)+"lib"+quote(separator)+"\\w+\\.jar",2)[0];
+			File bin = new File(jdk,  "bin");
+			for(String fileName : names) {
+				File ret = new File(bin, fileName);
+				if(ret.exists()) { 
+					lazyJre =  ret.getAbsolutePath();
+					return lazyJre;
+				}
+			}
+		}
+		
 		String libraryPath = mxbean.getLibraryPath();
 		for(String bin : libraryPath.split(quote(File.pathSeparator))) {
-			for(String fileName : asList("javaw", "java", "javaw.exe", "java.exe")) {
+			for(String fileName :names) {
 				File ret = new File(bin, fileName);
 				if(ret.exists()) {
 					lazyJre =  ret.getAbsolutePath();
@@ -32,6 +47,19 @@ public class JenkinsRunner {
 				}
 			}
 		}
+		
+		String jdk = System.getProperty("java.home");
+		if(jdk != null) {
+			File bin = new File(jdk,  "bin");
+			for(String fileName : names) {
+				File ret = new File(bin, fileName);
+				if(ret.exists()) { 
+					lazyJre =  ret.getAbsolutePath();
+					return lazyJre;
+				}
+			}
+		}
+		
 		throw new IllegalStateException("java excutable not found");
 	}
 
