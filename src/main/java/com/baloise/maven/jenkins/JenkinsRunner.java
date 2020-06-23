@@ -101,13 +101,14 @@ public class JenkinsRunner {
 	private static void inheritIO(final InputStream src, final Log  dest, final boolean err) {
 	    new Thread(new Runnable() {
 	        public void run() {
-	            Scanner sc = new Scanner(src);
-	            while (sc.hasNextLine()) {
-	            	if(err) 
-	            		dest.error(sc.nextLine());
-	            	else
-	            		dest.info(sc.nextLine());
-	            }
+	            try (Scanner sc = new Scanner(src)) {
+					while (sc.hasNextLine()) {
+						if(err) 
+							dest.error(sc.nextLine());
+						else
+							dest.info(sc.nextLine());
+					}
+				}
 	        }
 	    }) {{setDaemon(true);}}.start();
 	}
