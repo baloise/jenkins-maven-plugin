@@ -45,7 +45,7 @@ public class RunMojo extends AbstractMojo {
 	@Parameter(property = "jenkins.home.template", required = false)
 	File jenkinsHomeTemplate = null;
 
-	@Parameter(defaultValue = "2.190.3", property = "jenkins.version", required = false)
+	@Parameter(defaultValue = "2.241", property = "jenkins.version", required = false)
 	String version = null;
 
 	@Component
