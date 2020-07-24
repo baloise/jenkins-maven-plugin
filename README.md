@@ -76,7 +76,7 @@ Of course you have all the options as where to set the properties
   @Parameter(property = "jenkins.debug.port", required=false)
   int debugPort;
   
-  @Parameter(defaultValue = "2.241", property = "jenkins.version", required = false)
+  @Parameter(defaultValue = "2.244", property = "jenkins.version", required = false)
   String version;
 
   @Parameter(property = "jenkins.home.template", required = false)
