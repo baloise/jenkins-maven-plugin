@@ -11,7 +11,7 @@ The design goals are
 
 Prerequisite
 - Maven is working. That's all. No pom.xml required.
-- add jcenter repo to your maven settings
+- add jcenter repo to your maven settings, see the [minimal settings.xml template](https://github.com/baloise/jenkins-maven-plugin/blob/master/docs/settings.xml).
 ```
 <pluginRepository>
     <snapshots>
