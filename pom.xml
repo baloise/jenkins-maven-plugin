@@ -11,7 +11,7 @@
 
 	<groupId>com.baloise.maven</groupId>
 	<artifactId>jenkins-maven-plugin</artifactId>
-	<version>0.3.1-SNAPSHOT</version>
+	<version>0.3.1</version>
 	<packaging>maven-plugin</packaging>
 
 	<name>jenkins-maven-plugin Maven Plugin</name>
