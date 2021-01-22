@@ -11,7 +11,7 @@
 
 	<groupId>com.baloise.maven</groupId>
 	<artifactId>jenkins-maven-plugin</artifactId>
-	<version>0.3.0</version>
+	<version>0.3.1-SNAPSHOT</version>
 	<packaging>maven-plugin</packaging>
 
 	<name>jenkins-maven-plugin Maven Plugin</name>
@@ -27,7 +27,7 @@
 	<developers>
 		<developer>
 			<name>Matthias Cullmann</name>
-			<email>matthias.cullmann@baloise.ch</email>
+			<email>matthias.cullmann@baloise.com</email>
 			<organization>Baloise Group</organization>
 			<organizationUrl>http://www.baloise.com</organizationUrl>
 		</developer>
@@ -37,12 +37,19 @@
 		<developerConnection>scm:git:https://github.com/baloise/jenkins-maven-plugin.git</developerConnection>
 		<url>https://github.com/baloise/jenkins-maven-plugin.git</url>
 	</scm>
+	<issueManagement>
+		<system>Github</system>
+		<url>https://github.com/baloise/jenkins-maven-plugin/issues</url>
+	</issueManagement>
 
 	<distributionManagement>
+		<snapshotRepository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+		</snapshotRepository>
 		<repository>
-			<id>bintray-baopso-mvn</id>
-			<name>baopso-mvn</name>
-			<url>https://api.bintray.com/maven/baopso/mvn/jenkins-maven-plugin/;publish=1</url>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/content/repositories/releases</url>
 		</repository>
 	</distributionManagement>
 
@@ -123,36 +130,6 @@
 					</execution>
 				</executions>
 			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>attach-sources</id>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<!-- 
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>3.1.1</version>
-				 <configuration>
-          			<source>8</source>
-          		</configuration>
-				<executions>
-					<execution>
-						<id>attach-javadocs</id>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			 -->
 		</plugins>
 	</build>
 	<profiles>
@@ -192,6 +169,71 @@
 					</plugin>
 				</plugins>
 
+			</build>
+		</profile>
+		<profile>
+			<!-- we move time consuming plugins to the release profile -->
+			<id>release</id>
+			<activation>
+				<property>
+					<name>performRelease</name>
+					<value>true</value>
+				</property>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-source-plugin</artifactId>
+						<version>3.2.1</version>
+						<executions>
+							<execution>
+								<id>attach-sources</id>
+								<goals>
+									<goal>jar-no-fork</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-javadoc-plugin</artifactId>
+						<version>3.2.0</version>
+						<executions>
+							<execution>
+								<id>attach-javadocs</id>
+								<goals>
+									<goal>jar</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-gpg-plugin</artifactId>
+						<version>1.6</version>
+						<executions>
+							<execution>
+								<id>sign-artifacts</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.sonatype.plugins</groupId>
+						<artifactId>nexus-staging-maven-plugin</artifactId>
+						<version>1.6.8</version>
+						<extensions>true</extensions>
+						<configuration>
+							<serverId>ossrh</serverId>
+							<nexusUrl>https://oss.sonatype.org/</nexusUrl>
+							<autoReleaseAfterClose>true</autoReleaseAfterClose>
+						</configuration>
+					</plugin>
+				</plugins>
 			</build>
 		</profile>
 	</profiles>
