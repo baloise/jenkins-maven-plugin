@@ -48,13 +48,13 @@ public class RunMojo extends AbstractMojo {
 	@Parameter(defaultValue = "2.244", property = "jenkins.version", required = false)
 	String version = null;
 
-	@Component
+	@Parameter( defaultValue = "${project}", required = true, readonly = true )
 	private Settings settings;
 
-	@Component
+	@Parameter( defaultValue = "${project}", required = true, readonly = true )
 	private PluginDescriptor plugin;
 
-	@Component
+	@Parameter( defaultValue = "${project}", required = true, readonly = true )
 	private RepositorySystem repoSystem;
 
 	@Parameter(defaultValue = "${repositorySystemSession}")
