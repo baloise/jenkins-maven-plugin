@@ -11,7 +11,7 @@
 
 	<groupId>com.baloise.maven</groupId>
 	<artifactId>jenkins-maven-plugin</artifactId>
-	<version>0.3.2</version>
+	<version>0.3.3-SNAPSHOT</version>
 	<packaging>maven-plugin</packaging>
 
 	<name>jenkins-maven-plugin Maven Plugin</name>
@@ -230,7 +230,7 @@
 						<configuration>
 							<serverId>ossrh</serverId>
 							<nexusUrl>https://oss.sonatype.org/</nexusUrl>
-							<autoReleaseAfterClose>false</autoReleaseAfterClose>
+							<autoReleaseAfterClose>true</autoReleaseAfterClose>
 						</configuration>
 					</plugin>
 				</plugins>
