@@ -1,11 +1,10 @@
 package com.baloise.maven.jenkins;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 
 import org.apache.maven.plugin.logging.SystemStreamLog;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class JenkinsRunnerTest {
@@ -17,9 +16,7 @@ public class JenkinsRunnerTest {
 		assertTrue(jre.canExecute());
 	}
 	
-	@Test
-	@Ignore
-	public void runJenkins() throws Exception {
+	public static void main(String[] args) throws Exception {
 		String war = "target/jenkins.war";
 		new JenkinsRunner().runJenkins(new File("target/JENKINS_HOME"), "/", 8081, war, null, new SystemStreamLog(), 5555);
 	}
