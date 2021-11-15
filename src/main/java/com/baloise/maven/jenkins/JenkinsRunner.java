@@ -1,11 +1,12 @@
 package com.baloise.maven.jenkins;
 
+import static java.io.File.separator;
 import static java.util.Arrays.asList;
 import static java.util.regex.Pattern.quote;
-import static java.io.File.separator;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -70,6 +71,7 @@ public class JenkinsRunner {
 	}
 	
 	public void runJenkins(File jenkinsHome, String context, int port, String jenkinsWar, File jenkinsHomeTemplate, Log log, int debugPort) throws Exception {
+		checkFileExists(new File(jenkinsWar));
 		copyTemplate(jenkinsHomeTemplate, jenkinsHome);
 		if(!context.isEmpty() &&  !context.startsWith("/")) context = "/"+context;
 		addShutdownHook();
@@ -96,6 +98,10 @@ public class JenkinsRunner {
 		inheritIO(proc.getInputStream(), log, false);
 		inheritIO(proc.getErrorStream(), log, true);
 		proc.waitFor();
+	}
+
+	private void checkFileExists(File file) throws FileNotFoundException {
+		if(!file.exists()) throw new FileNotFoundException(file.getAbsolutePath()+" not found");
 	}
 	
 	private static void inheritIO(final InputStream src, final Log  dest, final boolean err) {
