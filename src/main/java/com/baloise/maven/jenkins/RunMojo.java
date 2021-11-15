@@ -10,7 +10,6 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.descriptor.PluginDescriptor;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -45,7 +44,7 @@ public class RunMojo extends AbstractMojo {
 	@Parameter(property = "jenkins.home.template", required = false)
 	File jenkinsHomeTemplate = null;
 
-	@Parameter(defaultValue = "2.244", property = "jenkins.version", required = false)
+	@Parameter(defaultValue = "2.320", property = "jenkins.version", required = false)
 	String version = null;
 
 	@Parameter( defaultValue = "${project}", required = true, readonly = true )
