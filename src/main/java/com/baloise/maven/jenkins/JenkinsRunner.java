@@ -2,6 +2,7 @@ package com.baloise.maven.jenkins;
 
 import static java.io.File.separator;
 import static java.util.Arrays.asList;
+import static java.util.Arrays.stream;
 import static java.util.regex.Pattern.quote;
 
 import java.io.BufferedReader;
@@ -20,6 +21,7 @@ import org.apache.maven.plugin.logging.Log;
 
 public class JenkinsRunner {
 
+	public static final String KILL_PID_PROPERTY = "jenkinsRunner.killPID";
 	private static String lazyJre;
 	public static String jre() {
 		if(lazyJre != null) return lazyJre;
@@ -145,6 +147,7 @@ public class JenkinsRunner {
 			public void run() {
 				try {
 					System.out.println("Shutting down JENKINS");
+					killProcesses();
 					proc.destroy();
 				} catch (Exception e) {
 				}
@@ -164,6 +167,7 @@ public class JenkinsRunner {
 					case "restart":
 						System.out.println("Restarting JENKINS");
 						restart = true;
+						killProcesses();
 						proc.destroy();
 						break;
 					default:
@@ -182,5 +186,24 @@ public class JenkinsRunner {
 		System.err.flush();
 		System.out.println("type 'restart' or 'exit'");
 	}
+
+	public static void addPIDtoKill(long pid) {
+		System.setProperty(KILL_PID_PROPERTY, (System.getProperty(KILL_PID_PROPERTY, "") + " "+pid).trim());
+	}
+	
+	private static long[] resetPIDtoKill() {
+			String PIDs = System.getProperty(KILL_PID_PROPERTY, "");
+			System.setProperty(KILL_PID_PROPERTY,"");
+			return PIDs.isEmpty() ? new long[0] : stream(PIDs.split(" ")).mapToLong(Long::valueOf).toArray();
+	}
+	
+	private static void killProcesses() {
+		for (long pid : resetPIDtoKill()) {
+			System.out.println("killing process with id "+pid);
+			ProcessHandle.of(pid).ifPresent(processHandle -> processHandle.destroy());
+		}
+	}
+	
+	
 
 }
