@@ -65,6 +65,7 @@ public class JenkinsRunner {
 	}
 
 	private Process proc;
+	private boolean restart = true;
 
 	public void runJenkins(File jenkinsHome, String context, int port, String jenkinsWar, File jenkinsHomeTemplate, Log log) throws Exception {
 		runJenkins(jenkinsHome, context, port, jenkinsWar, jenkinsHomeTemplate, log, -1);
@@ -78,26 +79,28 @@ public class JenkinsRunner {
 		new Thread() {{setDaemon(true);}
 		public void run() {waitForExit();}
 		}.start();
-		
-		System.out.println(String.format("Starting %s with home at %s as http://localhost:%s%s", jenkinsWar, jenkinsHome, port, context));
-		List<String> command = new ArrayList<String>();
-		command.add(jre());
-		command.add("-Djenkins.install.runSetupWizard=false"); 
-		if(debugPort > 0 ) {
-			command.add("-Xdebug"); 
-			command.add("-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5555"); 
+		while(restart) {
+			restart = false;
+			System.out.println(String.format("Starting %s with home at %s as http://localhost:%s%s", jenkinsWar, jenkinsHome, port, context));
+			List<String> command = new ArrayList<String>();
+			command.add(jre());
+			command.add("-Djenkins.install.runSetupWizard=false"); 
+			if(debugPort > 0 ) {
+				command.add("-Xdebug"); 
+				command.add("-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5555"); 
+			}
+			command.add("-jar"); 
+			command.add(jenkinsWar);
+			command.add("--enable-future-java");
+			command.add("--httpPort="+port);
+			command.add("--prefix="+context);
+			ProcessBuilder pb = new ProcessBuilder(command);
+			pb.environment().put("JENKINS_HOME", jenkinsHome.toString());
+			proc = pb.start();
+			inheritIO(proc.getInputStream(), log, false);
+			inheritIO(proc.getErrorStream(), log, true);
+			proc.waitFor();
 		}
-		command.add("-jar"); 
-		command.add(jenkinsWar);
-		command.add("--enable-future-java");
-		command.add("--httpPort="+port);
-		command.add("--prefix="+context);
-		ProcessBuilder pb = new ProcessBuilder(command);
-		pb.environment().put("JENKINS_HOME", jenkinsHome.toString());
-		proc = pb.start();
-		inheritIO(proc.getInputStream(), log, false);
-		inheritIO(proc.getErrorStream(), log, true);
-		proc.waitFor();
 	}
 
 	private void checkFileExists(File file) throws FileNotFoundException {
@@ -149,15 +152,23 @@ public class JenkinsRunner {
 		});
 	}
 
-	private static void waitForExit() {
+	private void waitForExit() {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		printMessage();
 		while (true) {
 			try {
-				if ("exit".equalsIgnoreCase(br.readLine())) {
-					System.exit(0);
-				} else {
-					printMessage();
+				switch (br.readLine().toLowerCase()) {
+					case "exit":
+						System.exit(0);
+						break;
+					case "restart":
+						System.out.println("Restarting JENKINS");
+						restart = true;
+						proc.destroy();
+						break;
+					default:
+						printMessage();
+						break;
 				}
 			} catch (IOException ioe) {
 				ioe.printStackTrace();
@@ -166,10 +177,10 @@ public class JenkinsRunner {
 		}
 	}
 
-	private static void printMessage() {
+	private void printMessage() {
 		System.out.flush();
 		System.err.flush();
-		System.out.println("To quit type 'exit'");
+		System.out.println("type 'restart' or 'exit'");
 	}
 
 }
