@@ -1,5 +1,6 @@
 package com.baloise.maven.jenkins;
 
+import static com.baloise.maven.jenkins.FUtil.copyDirectory;
 import static java.io.File.separator;
 import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
@@ -128,7 +129,12 @@ public class JenkinsRunner {
 		if(jenkinsHomeTemplate == null) jenkinsHomeTemplate = detectJenkinsHomeTemplate();
 		if(jenkinsHomeTemplate == null) return;
 		System.out.println("copying resources from "+ jenkinsHomeTemplate + " to  "+jenkinsHome);
-		FUtil.copyDirectory(jenkinsHomeTemplate, jenkinsHome);
+		File initGroovyD = new File(jenkinsHome, "init.groovy.d");
+		if(initGroovyD.exists()) {
+			System.out.println("cleaning " +initGroovyD.getAbsolutePath());
+			stream(initGroovyD.listFiles()).filter(File::isFile).forEach(File::delete);
+		}
+		copyDirectory(jenkinsHomeTemplate, jenkinsHome);
 	}
 
 	private File detectJenkinsHomeTemplate() {
