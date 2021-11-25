@@ -2,6 +2,7 @@ package com.baloise.maven.jenkins;
 
 import static com.baloise.maven.jenkins.FUtil.copyDirectory;
 import static java.io.File.separator;
+import static java.nio.file.Files.readString;
 import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
 import static java.util.regex.Pattern.quote;
@@ -22,7 +23,7 @@ import org.apache.maven.plugin.logging.Log;
 
 public class JenkinsRunner {
 
-	public static final String KILL_PID_PROPERTY = "jenkinsRunner.killPID";
+	public static final String KILL_PID_FILE_PROPERTY = "jenkinsRunner.KILL_PID_FILE";
 	private static String lazyJre;
 	public static String jre() {
 		if(lazyJre != null) return lazyJre;
@@ -69,6 +70,7 @@ public class JenkinsRunner {
 
 	private Process proc;
 	private boolean restart = true;
+	private File killPIDFile;
 
 	public void runJenkins(File jenkinsHome, String context, int port, String jenkinsWar, File jenkinsHomeTemplate, Log log) throws Exception {
 		runJenkins(jenkinsHome, context, port, jenkinsWar, jenkinsHomeTemplate, log, -1);
@@ -86,8 +88,10 @@ public class JenkinsRunner {
 			restart = false;
 			System.out.println(String.format("Starting %s with home at %s as http://localhost:%s%s", jenkinsWar, jenkinsHome, port, context));
 			List<String> command = new ArrayList<String>();
+			killPIDFile = File.createTempFile(KILL_PID_FILE_PROPERTY,".txt");
 			command.add(jre());
-			command.add("-Djenkins.install.runSetupWizard=false"); 
+			command.add("-Djenkins.install.runSetupWizard=false");
+			command.add("-D"+KILL_PID_FILE_PROPERTY+"="+killPIDFile.getAbsolutePath());
 			if(debugPort > 0 ) {
 				command.add("-Xdebug"); 
 				command.add("-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5555"); 
@@ -153,8 +157,7 @@ public class JenkinsRunner {
 			public void run() {
 				try {
 					System.out.println("Shutting down JENKINS");
-					killProcesses();
-					proc.destroy();
+					shutDown();
 				} catch (Exception e) {
 				}
 			}
@@ -173,8 +176,7 @@ public class JenkinsRunner {
 					case "restart":
 						System.out.println("Restarting JENKINS");
 						restart = true;
-						killProcesses();
-						proc.destroy();
+						shutDown();
 						break;
 					default:
 						printMessage();
@@ -193,21 +195,21 @@ public class JenkinsRunner {
 		System.out.println("type 'restart' or 'exit'");
 	}
 
-	public static void addPIDtoKill(long pid) {
-		System.setProperty(KILL_PID_PROPERTY, (System.getProperty(KILL_PID_PROPERTY, "") + " "+pid).trim());
+	private void shutDown() throws IOException {
+		killProcesses();
+		proc.destroy();
 	}
 	
-	private static long[] resetPIDtoKill() {
-			String PIDs = System.getProperty(KILL_PID_PROPERTY, "");
-			System.setProperty(KILL_PID_PROPERTY,"");
-			return PIDs.isEmpty() ? new long[0] : stream(PIDs.split(" ")).mapToLong(Long::valueOf).toArray();
-	}
-	
-	private static void killProcesses() {
-		for (long pid : resetPIDtoKill()) {
-			System.out.println("killing process with id "+pid);
-			ProcessHandle.of(pid).ifPresent(processHandle -> processHandle.destroy());
+	private void killProcesses() throws IOException {
+		if(!killPIDFile.exists()) return;
+		String killPidFileTxt = readString(killPIDFile.toPath());
+		if(!killPidFileTxt.isBlank()) {
+			stream(killPidFileTxt.split("\\D+")).mapToLong(Long::valueOf).forEach(pid -> {
+				System.out.println("killing process with id "+pid);
+				ProcessHandle.of(pid).ifPresent(processHandle -> processHandle.destroy());
+			});
 		}
+		killPIDFile.delete();
 	}
 	
 	
